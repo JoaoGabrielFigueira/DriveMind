@@ -1,0 +1,1755 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "whatsapp",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "71439275-2a60-48c3-a912-d7a519533d02",
+      "name": "Webhook",
+      "webhookId": "0f2a8cce-a87b-469b-af40-1050e8614654"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "ffa8b8d2-49c8-4d40-964b-23673038306b",
+              "leftValue": "={{ $json.body.fromMe }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "805910dd-81dd-4848-a8ec-62c89d206efa",
+              "leftValue": "={{ $json.body.isGroup }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        208,
+        0
+      ],
+      "id": "84e52acc-882d-476d-a48b-c96b49ffbc5d",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Você é o DriveMind, assistente financeiro para motoristas de van autônomos brasileiros.\nSeu objetivo é interpretar mensagens recebidas pelo WhatsApp e transformá-las em dados estruturados.\n\nTom de voz:\n* Simples\n* Amigável\n* Informal\n* Use emojis na resposta\n\nDados do motorista:\n* Nome: {{ $('HTTP Request1').first().json.nome }}\n* ID: {{ $('HTTP Request1').first().json.id }}\n* Plano: {{ $('HTTP Request1').first().json.plano }}\n\nMensagem recebida:\n{{ $('Webhook').first().json.body.text.message }}\n\nNúmero:\n{{ $('Webhook').first().json.body.phone }}\n\nIdentifique a intenção da mensagem.\n\nIntenções permitidas:\n* pagamento\n* despesa\n* manutencao\n* documento\n* resumo\n* inadimplentes\n* outro\n\nRetorne APENAS um JSON válido no formato:\n{\n\"resposta\": \"\",\n\"intencao\": \"\",\n\"valor\": 0,\n\"descricao\": \"\",\n\"vencimento\": null\n}\n\nRegras:\n1. Para PAGAMENTOS:\n   Exemplos:\n* \"recebi 150 do João\"\n* \"João me pagou 300\"\n* \"entrou 450 do Carlos\"\nRetorne:\n{\n\"intencao\": \"pagamento\",\n\"valor\": 150,\n\"descricao\": \"João\"\n}\n\n2. Para DESPESAS:\n   Exemplos:\n* \"gastei 100 de combustível\"\n* \"abasteci 250\"\n* \"gastei 80 no posto\"\nRetorne:\n{\n\"intencao\": \"despesa\",\n\"valor\": 100,\n\"descricao\": \"combustível\"\n}\n\n3. Para MANUTENÇÕES:\n   Exemplos:\n* \"troquei o óleo por 200\"\n* \"gastei 500 no mecânico\"\n* \"troquei os pneus por 1800\"\nRetorne:\n{\n\"intencao\": \"manutencao\",\n\"valor\": 200,\n\"descricao\": \"troca de óleo\"\n}\n\n4. Para DOCUMENTOS:\n   Exemplos:\n* \"IPVA vence dia 15/07/2026\"\n* \"licenciamento vence em agosto\"\n* \"CNH vence dia 10/12\"\nRetorne:\n{\n\"intencao\": \"documento\",\n\"valor\": 0,\n\"descricao\": \"IPVA\",\n\"vencimento\": \"2026-07-15\"\n}\nSe não houver data informada, retorne vencimento como null.\n\n5. Para RESUMO:\n   Exemplos:\n* \"resumo\"\n* \"como foi meu mês?\"\n* \"quanto eu ganhei?\"\n* \"mostre minhas finanças\"\nRetorne:\n{\n\"intencao\": \"resumo\",\n\"valor\": 0,\n\"descricao\": \"\"\n}\n\n6. Para INADIMPLENTES:\n   Exemplos:\n* \"quem não pagou?\"\n* \"lista de inadimplentes\"\n* \"quem está devendo?\"\n* \"quem não pagou esse mês?\"\nRetorne:\n{\n\"intencao\": \"inadimplentes\",\n\"valor\": 0,\n\"descricao\": \"\"\n}\n\n7. Para STATUS DE DOCUMENTOS:\n   Exemplos:\n* \"meus documentos\"\n* \"status dos documentos\"\n* \"quais documentos vencem em breve?\"\n* \"situação dos documentos da van\"\nRetorne:\n{\n\"intencao\": \"documentos_status\",\n\"valor\": 0,\n\"descricao\": \"\"\n}\n\n8. Para mensagens que não se encaixam:\n{\n\"intencao\": \"outro\"\n}\n\nRetorne somente JSON válido.",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        688,
+        -128
+      ],
+      "id": "5c46bdb3-1c1c-48ea-a117-31dbdbe876b2",
+      "name": "AI Agent",
+      "alwaysOutputData": false,
+      "executeOnce": false,
+      "retryOnFail": false,
+      "notesInFlow": false
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        688,
+        96
+      ],
+      "id": "1f73431b-a410-4513-964a-38c479f6a53e",
+      "name": "Google Gemini Chat Model",
+      "notesInFlow": false,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "JN0VLyhFlFNEw1av",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const output = $('AI Agent').first().json.output;\nconst phone = $('Webhook').first().json.body.phone;\n\n// Limpa markdown\nconst clean = output.replace(/```json|```/g, '').trim();\n\nlet parsed;\n\ntry {\n  parsed = JSON.parse(clean);\n} catch (error) {\n  parsed = {\n    resposta: 'Desculpe, não consegui entender sua mensagem 😅',\n    intencao: 'outro',\n    valor: 0,\n    descricao: ''\n  };\n}\n\n// Detecta categoria para despesas\nfunction detectarCategoria(descricao) {\n  if (!descricao) return 'outro';\n\n  const d = descricao.toLowerCase();\n\n  if (/combustiv|gasolina|etanol|diesel|posto/.test(d))\n    return 'combustivel';\n\n  if (/oleo|pneu|freio|revisao|mecanico|oficina|manutencao/.test(d))\n    return 'manutencao';\n\n  if (/crlv|ipva|seguro|cnh|licenci|vistoria/.test(d))\n    return 'documentacao';\n\n  if (/lavagem|limpeza/.test(d))\n    return 'lavagem';\n\n  return 'outro';\n}\n\n// Detecta tipo de manutenção\nfunction detectarTipoManutencao(descricao) {\n  if (!descricao) return 'outro';\n\n  const d = descricao\n    .toLowerCase()\n    .normalize('NFD')\n    .replace(/[\\u0300-\\u036f]/g, '');\n\n  if (/oleo/.test(d)) return 'oleo';\n  if (/pneu/.test(d)) return 'pneu';\n  if (/freio/.test(d)) return 'freio';\n  if (/revisao/.test(d)) return 'revisao';\n  if (/eletrica/.test(d)) return 'eletrica';\n\n  return 'outro';\n}\n\n// Detecta tipo de documento\nfunction detectarDocumento(descricao) {\n  if (!descricao) return 'outro';\n\n  const d = descricao.toLowerCase();\n\n  if (/ipva/.test(d)) return 'ipva';\n  if (/crlv/.test(d)) return 'crlv';\n  if (/seguro/.test(d)) return 'seguro';\n  if (/cnh/.test(d)) return 'cnh';\n  if (/licenci/.test(d)) return 'licenciamento';\n  if (/vistoria/.test(d)) return 'vistoria';\n\n  return 'outro';\n}\n\nreturn [{\n  json: {\n    phone,\n    message: parsed.resposta || '',\n    intencao: parsed.intencao || 'outro',\n    valor: Number(parsed.valor || 0),\n    descricao: parsed.descricao || '',\n    vencimento: parsed.vencimento || null,\n\n    categoria: detectarCategoria(parsed.descricao),\n    tipo_manutencao: detectarTipoManutencao(parsed.descricao),\n    tipo_documento: detectarDocumento(parsed.descricao),\n\n    motorista_id: $('HTTP Request1').first().json.id\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1056,
+        -128
+      ],
+      "id": "75b36ab1-5d55-41a7-8e81-37d7b87a87d9",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.z-api.io/instances/3F45BF2E01A0A16F3B137AE31EDEB32B/token/0B3953A585FCE0D42DC0BA52/send-text",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Client-Token",
+              "value": "F4c82d27bbf8b4ac9afdbbd25203f5e99S"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "phone",
+              "value": "={{ $('Code in JavaScript').first().json.phone }}"
+            },
+            {
+              "name": "message",
+              "value": "={{ $('Code in JavaScript').first().json.message }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        2256,
+        -224
+      ],
+      "id": "d623766c-86cd-4649-a2e3-03589a06b16c",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "url": "=https://nwkgpjyeqtzhmnidsquf.supabase.co/rest/v1/motoristas?whatsapp=eq.5511987654321&select=*",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im53a2dwanllcXR6aG1uaWRzcXVmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODU1NzgyMCwiZXhwIjoyMDk0MTMzODIwfQ.eWfooCjffi0fsrF1BKADCXddHVEB6PbOO-jSCbCYvdM"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im53a2dwanllcXR6aG1uaWRzcXVmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODU1NzgyMCwiZXhwIjoyMDk0MTMzODIwfQ.eWfooCjffi0fsrF1BKADCXddHVEB6PbOO-jSCbCYvdM"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        448,
+        -128
+      ],
+      "id": "a81bb927-ad88-4a01-bc69-62eacd599156",
+      "name": "HTTP Request1",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.intencao }}",
+                    "rightValue": "pagamento",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "dd810fc1-1da3-48dd-b071-94a8d6a439e1"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "PAGAMENTO"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "e5ca978c-51c4-45d9-b97f-ad9a4cf7d6bf",
+                    "leftValue": "={{ $json.intencao }}",
+                    "rightValue": "despesa",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "DESPESA"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "3e78329a-774a-4e77-bc9d-f92d8b36c0b4",
+                    "leftValue": "={{ $json.intencao }}",
+                    "rightValue": "manutencao",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "MANUTENÇÃO"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "320fd7e6-1d9c-4e37-8718-8089e3ee6bc3",
+                    "leftValue": "={{ $json.intencao }}",
+                    "rightValue": "documento",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "DOCUMENTO"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "a4b89d8c-e9bc-420e-b252-65c4c4fb9ed2",
+                    "leftValue": "={{ $json.intencao }}",
+                    "rightValue": "resumo",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "RESUMO"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "cd2d684e-d47a-466d-9305-cfe1bcd5e55e",
+                    "leftValue": "={{ $json.intencao }}",
+                    "rightValue": "outro",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "OUTRO"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "b73b0444-6882-42d7-813f-577280e146ba",
+                    "leftValue": "={{ $json.intencao }}",
+                    "rightValue": "inadimplentes",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "INADIMPLENTES"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "bc598a1e-6531-4041-bbf1-1ca718f15b8f",
+                    "leftValue": "={{ $json.intencao }}",
+                    "rightValue": "documentos_status",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "STATUS DOCUMENTOS"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        1328,
+        -208
+      ],
+      "id": "64f11ef4-32e3-4383-9725-706d62f97900",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://nwkgpjyeqtzhmnidsquf.supabase.co/rest/v1/pagamentos",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im53a2dwanllcXR6aG1uaWRzcXVmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODU1NzgyMCwiZXhwIjoyMDk0MTMzODIwfQ.eWfooCjffi0fsrF1BKADCXddHVEB6PbOO-jSCbCYvdM"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im53a2dwanllcXR6aG1uaWRzcXVmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODU1NzgyMCwiZXhwIjoyMDk0MTMzODIwfQ.eWfooCjffi0fsrF1BKADCXddHVEB6PbOO-jSCbCYvdM"
+            },
+            {
+              "name": "Content-type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"motorista_id\": \"{{ $('Switch').first().json.motorista_id }}\",\n  \"passageiro_id\": \"{{ $json.id }}\",\n  \"valor\": {{ $('Switch').first().json.valor }},\n  \"forma\": \"pix\",\n  \"referencia\": \"{{ new Date().toISOString().slice(0,7) }}\",\n  \"observacao\": \"{{ $('Switch').first().json.descricao }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1792,
+        -544
+      ],
+      "id": "6f0cdc73-17ae-4c3b-9c84-6c28c19a341d",
+      "name": "HTTP Pagamento"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://nwkgpjyeqtzhmnidsquf.supabase.co/rest/v1/manutencoes",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im53a2dwanllcXR6aG1uaWRzcXVmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODU1NzgyMCwiZXhwIjoyMDk0MTMzODIwfQ.eWfooCjffi0fsrF1BKADCXddHVEB6PbOO-jSCbCYvdM"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im53a2dwanllcXR6aG1uaWRzcXVmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODU1NzgyMCwiZXhwIjoyMDk0MTMzODIwfQ.eWfooCjffi0fsrF1BKADCXddHVEB6PbOO-jSCbCYvdM"
+            },
+            {
+              "name": "Content-type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"motorista_id\": \"{{ $json.motorista_id }}\",\n  \"tipo\": \"{{ $json.tipo_manutencao }}\",\n  \"descricao\": \"{{ $json.descricao }}\",\n  \"custo\": {{ $json.valor }}\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1696,
+        -32
+      ],
+      "id": "3fd26b67-d099-4566-8716-a08eecd54faa",
+      "name": "HTTP Manutencoes"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://nwkgpjyeqtzhmnidsquf.supabase.co/rest/v1/documentos",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im53a2dwanllcXR6aG1uaWRzcXVmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODU1NzgyMCwiZXhwIjoyMDk0MTMzODIwfQ.eWfooCjffi0fsrF1BKADCXddHVEB6PbOO-jSCbCYvdM"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im53a2dwanllcXR6aG1uaWRzcXVmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODU1NzgyMCwiZXhwIjoyMDk0MTMzODIwfQ.eWfooCjffi0fsrF1BKADCXddHVEB6PbOO-jSCbCYvdM"
+            },
+            {
+              "name": "Content-type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"motorista_id\": \"{{ $json.motorista_id }}\",\n  \"tipo\": \"{{ $json.tipo_documento }}\",\n  \"descricao\": \"{{ $json.descricao }}\",\n  \"vencimento\": \"{{ $json.vencimento }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1696,
+        192
+      ],
+      "id": "84949729-c82a-4218-b30e-64e77d5420c6",
+      "name": "HTTP Documentos"
+    },
+    {
+      "parameters": {
+        "url": "={{ `https://nwkgpjyeqtzhmnidsquf.supabase.co/rest/v1/pagamentos?motorista_id=eq.${$json.motorista_id}&select=*` }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im53a2dwanllcXR6aG1uaWRzcXVmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODU1NzgyMCwiZXhwIjoyMDk0MTMzODIwfQ.eWfooCjffi0fsrF1BKADCXddHVEB6PbOO-jSCbCYvdM"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im53a2dwanllcXR6aG1uaWRzcXVmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODU1NzgyMCwiZXhwIjoyMDk0MTMzODIwfQ.eWfooCjffi0fsrF1BKADCXddHVEB6PbOO-jSCbCYvdM"
+            },
+            {
+              "name": "Content-type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1696,
+        416
+      ],
+      "id": "7797c125-67d0-4d0b-8556-ecdc02bb53ab",
+      "name": "HTTP Pagamentos"
+    },
+    {
+      "parameters": {
+        "numberInputs": 3
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        2032,
+        592
+      ],
+      "id": "0b099dc6-fc19-4cf6-90f6-78524ac30ecd",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://nwkgpjyeqtzhmnidsquf.supabase.co/rest/v1/despesas",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im53a2dwanllcXR6aG1uaWRzcXVmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODU1NzgyMCwiZXhwIjoyMDk0MTMzODIwfQ.eWfooCjffi0fsrF1BKADCXddHVEB6PbOO-jSCbCYvdM"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im53a2dwanllcXR6aG1uaWRzcXVmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODU1NzgyMCwiZXhwIjoyMDk0MTMzODIwfQ.eWfooCjffi0fsrF1BKADCXddHVEB6PbOO-jSCbCYvdM"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"motorista_id\": \"{{ $json.motorista_id }}\",\n  \"categoria\": \"{{ $json.categoria }}\",\n  \"descricao\": \"{{ $json.descricao }}\",\n  \"valor\": {{ $json.valor }},\n  \"tipo\": \"variavel\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1680,
+        -320
+      ],
+      "id": "561ccddf-31b4-4025-8b3f-55dca3ab8066",
+      "name": "HTTP Despesa"
+    },
+    {
+      "parameters": {
+        "url": "={{ `https://nwkgpjyeqtzhmnidsquf.supabase.co/rest/v1/despesas?motorista_id=eq.${$json.motorista_id}&select=*` }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im53a2dwanllcXR6aG1uaWRzcXVmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODU1NzgyMCwiZXhwIjoyMDk0MTMzODIwfQ.eWfooCjffi0fsrF1BKADCXddHVEB6PbOO-jSCbCYvdM"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im53a2dwanllcXR6aG1uaWRzcXVmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODU1NzgyMCwiZXhwIjoyMDk0MTMzODIwfQ.eWfooCjffi0fsrF1BKADCXddHVEB6PbOO-jSCbCYvdM"
+            },
+            {
+              "name": "Content-type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1696,
+        608
+      ],
+      "id": "75b723ce-063e-482c-9459-0765fcdb982d",
+      "name": "HTTP Despesas"
+    },
+    {
+      "parameters": {
+        "jsCode": "const pagamentos = $items('HTTP Pagamentos');\nconst despesas = $items('HTTP Despesas');\nconst manutencoes = $items('HTTP Manutencao');\n\nconst totalReceitas = pagamentos.reduce(\n  (acc, item) => acc + Number(item.json.valor || 0),\n  0\n);\n\nconst totalDespesas = despesas.reduce(\n  (acc, item) => acc + Number(item.json.valor || 0),\n  0\n);\n\nconst totalManutencoes = manutencoes.reduce(\n  (acc, item) => acc + Number(item.json.custo || 0),\n  0\n);\n\nconst lucro = totalReceitas - (totalDespesas + totalManutencoes);\n\nconst phone = $('Code in JavaScript').first().json.phone;\n\nreturn [{\n  json: {\n    phone,\n    message: `📊 Resumo Financeiro\n\n💰 Receitas: R$ ${totalReceitas.toFixed(2)}\n\n💸 Despesas: R$ ${(totalDespesas + totalManutencoes).toFixed(2)}\n\n📈 Lucro: R$ ${lucro.toFixed(2)}`\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2256,
+        608
+      ],
+      "id": "0023a595-72a8-447b-88d7-b82a9096b7d8",
+      "name": "Code Resumo"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.z-api.io/instances/3F45BF2E01A0A16F3B137AE31EDEB32B/token/0B3953A585FCE0D42DC0BA52/send-text",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Client-Token",
+              "value": "F4c82d27bbf8b4ac9afdbbd25203f5e99S"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "phone",
+              "value": "={{ $('Code Resumo').first().json.phone }}"
+            },
+            {
+              "name": "message",
+              "value": "={{ $('Code Resumo').first().json.message }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        2576,
+        608
+      ],
+      "id": "ad6bd7a3-bd61-46ce-8a23-dd67d5ef87aa",
+      "name": "HTTP Request2"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 8 * * *"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        48,
+        2080
+      ],
+      "id": "e6ba00d0-733d-4e54-8aca-1f4ff2d94516",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "https://nwkgpjyeqtzhmnidsquf.supabase.co/rest/v1/inadimplencias",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "passageiro_id",
+              "value": "=eq.{{$('HTTP Passageiro').first().json.id}}"
+            },
+            {
+              "name": "resolvido",
+              "value": "eq.false"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im53a2dwanllcXR6aG1uaWRzcXVmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODU1NzgyMCwiZXhwIjoyMDk0MTMzODIwfQ.eWfooCjffi0fsrF1BKADCXddHVEB6PbOO-jSCbCYvdM"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im53a2dwanllcXR6aG1uaWRzcXVmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODU1NzgyMCwiZXhwIjoyMDk0MTMzODIwfQ.eWfooCjffi0fsrF1BKADCXddHVEB6PbOO-jSCbCYvdM"
+            },
+            {
+              "name": "Content-type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"resolvido\": true,\n  \"resolvido_em\": \"{{ new Date().toISOString() }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1984,
+        -544
+      ],
+      "id": "b39bd21e-8df3-4b32-a754-43ed196db3be",
+      "name": "HTTP Inadimplencias",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://nwkgpjyeqtzhmnidsquf.supabase.co/rest/v1/passageiros",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "motorista_id",
+              "value": "=eq.{{$json.motorista_id}}"
+            },
+            {
+              "name": "nome",
+              "value": "=ilike.*{{$json.descricao}}*"
+            },
+            {
+              "name": "select",
+              "value": "*"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im53a2dwanllcXR6aG1uaWRzcXVmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODU1NzgyMCwiZXhwIjoyMDk0MTMzODIwfQ.eWfooCjffi0fsrF1BKADCXddHVEB6PbOO-jSCbCYvdM"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im53a2dwanllcXR6aG1uaWRzcXVmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODU1NzgyMCwiZXhwIjoyMDk0MTMzODIwfQ.eWfooCjffi0fsrF1BKADCXddHVEB6PbOO-jSCbCYvdM"
+            },
+            {
+              "name": "Content-type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1600,
+        -544
+      ],
+      "id": "5d87008e-5ebc-4cca-b99a-a2b7de032813",
+      "name": "HTTP Passageiro"
+    },
+    {
+      "parameters": {
+        "url": "https://nwkgpjyeqtzhmnidsquf.supabase.co/rest/v1/passageiros",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "ativo",
+              "value": "=eq.true"
+            },
+            {
+              "name": "select",
+              "value": "*"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im53a2dwanllcXR6aG1uaWRzcXVmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODU1NzgyMCwiZXhwIjoyMDk0MTMzODIwfQ.eWfooCjffi0fsrF1BKADCXddHVEB6PbOO-jSCbCYvdM"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im53a2dwanllcXR6aG1uaWRzcXVmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODU1NzgyMCwiZXhwIjoyMDk0MTMzODIwfQ.eWfooCjffi0fsrF1BKADCXddHVEB6PbOO-jSCbCYvdM"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        256,
+        2080
+      ],
+      "id": "f4490a51-9acc-4748-a57f-2e3525c1e203",
+      "name": "HTTP Passageiros"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "7cef5129-b50f-4c2a-aef9-af2e5c7f017a",
+              "leftValue": "={{ $json.ativo }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        464,
+        2080
+      ],
+      "id": "21c77974-7ecf-47e2-99d1-8dd0ec3d8872",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "url": "=https://nwkgpjyeqtzhmnidsquf.supabase.co/rest/v1/pagamentos",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "referencia",
+              "value": "={{ 'eq.' + $now.toFormat('yyyy-MM') }}"
+            },
+            {
+              "name": "select",
+              "value": "passageiro_id"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im53a2dwanllcXR6aG1uaWRzcXVmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODU1NzgyMCwiZXhwIjoyMDk0MTMzODIwfQ.eWfooCjffi0fsrF1BKADCXddHVEB6PbOO-jSCbCYvdM"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im53a2dwanllcXR6aG1uaWRzcXVmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODU1NzgyMCwiZXhwIjoyMDk0MTMzODIwfQ.eWfooCjffi0fsrF1BKADCXddHVEB6PbOO-jSCbCYvdM"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        880,
+        1872
+      ],
+      "id": "8ae68d63-f411-4c36-822d-fc7559c7d044",
+      "name": "HTTP Pagamento do mes"
+    },
+    {
+      "parameters": {
+        "jsCode": "const passageiros = $('If Vencimento').all();\n\nconst pagamentos = $('HTTP Pagamento do mes').all();\n\nconst pagantes = new Set(\npagamentos.map(p => p.json.passageiro_id)\n);\n\nconst inadimplentes = passageiros.filter(\n  passageiro => !pagantes.has(passageiro.json.id)\n);\n\nreturn inadimplentes;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1104,
+        1872
+      ],
+      "id": "ca5d559e-0065-413f-871d-c22cc1a02a32",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "ee8f1298-4fdc-4338-a7e3-7ceb35ceba95",
+              "leftValue": "={{ Number($now.format('d')) }}",
+              "rightValue": "={{ $json.dia_vencimento }}",
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        672,
+        1984
+      ],
+      "id": "f0b273e9-e390-4753-8ad6-9383bc55974f",
+      "name": "If Vencimento"
+    },
+    {
+      "parameters": {
+        "url": "https://nwkgpjyeqtzhmnidsquf.supabase.co/rest/v1/inadimplencias",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "passageiro_id",
+              "value": "=eq.{{$json.passageiro_id_original}}"
+            },
+            {
+              "name": "referencia",
+              "value": "=eq.{{$now.toFormat('yyyy-MM')}}"
+            },
+            {
+              "name": "select",
+              "value": "id"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im53a2dwanllcXR6aG1uaWRzcXVmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODU1NzgyMCwiZXhwIjoyMDk0MTMzODIwfQ.eWfooCjffi0fsrF1BKADCXddHVEB6PbOO-jSCbCYvdM"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im53a2dwanllcXR6aG1uaWRzcXVmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODU1NzgyMCwiZXhwIjoyMDk0MTMzODIwfQ.eWfooCjffi0fsrF1BKADCXddHVEB6PbOO-jSCbCYvdM"
+            },
+            {
+              "name": "prefer",
+              "value": "return=representation"
+            },
+            {
+              "name": "Content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1552,
+        2000
+      ],
+      "id": "5981b571-69e5-4c32-8d77-010ffb7f32b4",
+      "name": "HTTP Inadimplencias1",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "3508d4ca-f9e2-40ae-b52c-c9cbe5345917",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        2096,
+        1888
+      ],
+      "id": "224d43ca-b6ed-4b6c-9593-91d22b444054",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://nwkgpjyeqtzhmnidsquf.supabase.co/rest/v1/inadimplencias",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im53a2dwanllcXR6aG1uaWRzcXVmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODU1NzgyMCwiZXhwIjoyMDk0MTMzODIwfQ.eWfooCjffi0fsrF1BKADCXddHVEB6PbOO-jSCbCYvdM"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im53a2dwanllcXR6aG1uaWRzcXVmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODU1NzgyMCwiZXhwIjoyMDk0MTMzODIwfQ.eWfooCjffi0fsrF1BKADCXddHVEB6PbOO-jSCbCYvdM"
+            },
+            {
+              "name": "Content-type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"motorista_id\": \"{{$json.motorista_id_original}}\",\n  \"passageiro_id\": \"{{$json.passageiro_id_original}}\",\n  \"referencia\": \"{{$now.toFormat('yyyy-MM')}}\",\n  \"valor_devido\": {{$json.mensalidade_original}},\n  \"vencimento\": \"{{$now.toFormat('yyyy-MM')}}-{{ String($json.dia_vencimento_original).padStart(2,'0') }}\",\n  \"alerta_enviado\": false,\n  \"resolvido\": false\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        2336,
+        1744
+      ],
+      "id": "b51acc1e-29c3-4d06-a553-9fc27b48b007",
+      "name": "HTTP Inadimplencias2",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"passageiro_id_original\": {{ $json.id }},\n  \"motorista_id_original\": {{ $json.motorista_id }},\n  \"mensalidade_original\": {{ $json.mensalidade }},\n  \"dia_vencimento_original\": {{ $json.dia_vencimento }}\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1312,
+        1872
+      ],
+      "id": "a5ac9a2c-61a4-4dc2-98f6-bd29fed4549b",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1776,
+        1888
+      ],
+      "id": "b1e37398-04bb-4d8b-bd9b-70bb4c5f7790",
+      "name": "Merge1"
+    },
+    {
+      "parameters": {
+        "url": "=https://nwkgpjyeqtzhmnidsquf.supabase.co/rest/v1/inadimplencias?motorista_id=eq.{{ $json.motorista_id }}&resolvido=eq.false&vencimento=gte.{{ new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0] }}&vencimento=lte.{{ new Date().toISOString().split('T')[0] }}&select=*,passageiros(nome,mensalidade)",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im53a2dwanllcXR6aG1uaWRzcXVmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODU1NzgyMCwiZXhwIjoyMDk0MTMzODIwfQ.eWfooCjffi0fsrF1BKADCXddHVEB6PbOO-jSCbCYvdM"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im53a2dwanllcXR6aG1uaWRzcXVmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODU1NzgyMCwiZXhwIjoyMDk0MTMzODIwfQ.eWfooCjffi0fsrF1BKADCXddHVEB6PbOO-jSCbCYvdM"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1696,
+        992
+      ],
+      "id": "5e79eb07-97ec-4a62-b203-028fbc824036",
+      "name": "HTTP Inadimplentes",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const inadimplentes = $input.all();\nconst motorista = $('Code in JavaScript').first().json;\n\nif (inadimplentes.length === 0 || !inadimplentes[0].json.id) {\n  return [{\n    json: {\n      phone: motorista.phone,\n      message: '✅ Boa notícia! Nenhum passageiro está em atraso esse mês. Todos pagaram em dia! 🎉'\n    }\n  }];\n}\n\nlet lista = '📋 *Inadimplentes do mês:*\\n\\n';\ninadimplentes.forEach((item, index) => {\n  const nome = item.json.passageiros?.nome || 'Desconhecido';\n  const valor = Number(item.json.valor_devido).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });\n  const vencimento = new Date(item.json.vencimento).toLocaleDateString('pt-BR');\n  lista += `${index + 1}. 👤 ${nome}\\n   💰 ${valor} — venceu em ${vencimento}\\n\\n`;\n});\n\nlista += `Total: ${inadimplentes.length} passageiro(s) em atraso.`;\n\nreturn [{\n  json: {\n    phone: motorista.phone,\n    message: lista\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1920,
+        992
+      ],
+      "id": "ac418967-7aae-482d-89b9-ff21b0af5aa2",
+      "name": "Code in JavaScript2"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.z-api.io/instances/3F45BF2E01A0A16F3B137AE31EDEB32B/token/0B3953A585FCE0D42DC0BA52/send-text",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Client-Token",
+              "value": "F4c82d27bbf8b4ac9afdbbd25203f5e99S"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "phone",
+              "value": "={{ $('Code in JavaScript2').first().json.phone }}"
+            },
+            {
+              "name": "message",
+              "value": "={{ $('Code in JavaScript2').first().json.message }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        2416,
+        992
+      ],
+      "id": "fa9bd0c2-148d-46e3-88d5-36d454015765",
+      "name": "HTTP Request3"
+    },
+    {
+      "parameters": {
+        "url": "={{ `https://nwkgpjyeqtzhmnidsquf.supabase.co/rest/v1/manutencoes?motorista_id=eq.${$json.motorista_id}&select=*` }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im53a2dwanllcXR6aG1uaWRzcXVmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODU1NzgyMCwiZXhwIjoyMDk0MTMzODIwfQ.eWfooCjffi0fsrF1BKADCXddHVEB6PbOO-jSCbCYvdM"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im53a2dwanllcXR6aG1uaWRzcXVmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODU1NzgyMCwiZXhwIjoyMDk0MTMzODIwfQ.eWfooCjffi0fsrF1BKADCXddHVEB6PbOO-jSCbCYvdM"
+            },
+            {
+              "name": "Content-type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1696,
+        800
+      ],
+      "id": "2e67ba44-7970-490a-9ab0-e2f585437f34",
+      "name": "HTTP Manutencao"
+    },
+    {
+      "parameters": {
+        "url": "=https://nwkgpjyeqtzhmnidsquf.supabase.co/rest/v1/documentos?motorista_id=eq.{{ $json.motorista_id }}&renovado=eq.false&select=*&order=vencimento.asc",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im53a2dwanllcXR6aG1uaWRzcXVmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODU1NzgyMCwiZXhwIjoyMDk0MTMzODIwfQ.eWfooCjffi0fsrF1BKADCXddHVEB6PbOO-jSCbCYvdM"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im53a2dwanllcXR6aG1uaWRzcXVmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODU1NzgyMCwiZXhwIjoyMDk0MTMzODIwfQ.eWfooCjffi0fsrF1BKADCXddHVEB6PbOO-jSCbCYvdM"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1696,
+        1248
+      ],
+      "id": "2601e13e-24b1-4ae3-b2d3-bdacd68bb5f9",
+      "name": "HTTP Request4"
+    },
+    {
+      "parameters": {
+        "jsCode": "const documentos = $input.all();\nconst motorista = $('Code in JavaScript').first().json;\n\nif (documentos.length === 0 || !documentos[0].json.id) {\n  return [{\n    json: {\n      phone: motorista.phone,\n      message: '📄 Nenhum documento cadastrado ainda. Para cadastrar, me diga: \"IPVA vence dia 15/07/2026\"'\n    }\n  }];\n}\n\nconst hoje = new Date();\nhoje.setHours(0, 0, 0, 0);\n\nlet mensagem = '📄 *Status dos seus documentos:*\\n\\n';\n\ndocumentos.forEach(item => {\n  const doc = item.json;\n  const vencimento = new Date(doc.vencimento);\n  const diasRestantes = Math.ceil((vencimento - hoje) / (1000 * 60 * 60 * 24));\n  \n  let icone = '✅';\n  let status = '';\n\n  if (diasRestantes < 0) {\n    icone = '🚨';\n    status = `VENCIDO há ${Math.abs(diasRestantes)} dias!`;\n  } else if (diasRestantes <= 7) {\n    icone = '🔴';\n    status = `vence em ${diasRestantes} dia(s)!`;\n  } else if (diasRestantes <= 15) {\n    icone = '🟠';\n    status = `vence em ${diasRestantes} dias`;\n  } else if (diasRestantes <= 30) {\n    icone = '🟡';\n    status = `vence em ${diasRestantes} dias`;\n  } else {\n    status = `vence em ${diasRestantes} dias`;\n  }\n\n  const dataFormatada = vencimento.toLocaleDateString('pt-BR');\n  mensagem += `${icone} *${doc.tipo.toUpperCase()}*\\n   📅 ${dataFormatada} — ${status}\\n\\n`;\n});\n\nreturn [{\n  json: {\n    phone: motorista.phone,\n    message: mensagem\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1904,
+        1248
+      ],
+      "id": "b5e57e57-a758-4908-a0b3-7f437e6e18a4",
+      "name": "Code in JavaScript3"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.z-api.io/instances/3F45BF2E01A0A16F3B137AE31EDEB32B/token/0B3953A585FCE0D42DC0BA52/send-text",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Client-Token",
+              "value": "F4c82d27bbf8b4ac9afdbbd25203f5e99S"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "phone",
+              "value": "={{ $('Code in JavaScript3').first().json.phone }}"
+            },
+            {
+              "name": "message",
+              "value": "={{ $('Code in JavaScript3').first().json.message }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        2112,
+        1248
+      ],
+      "id": "5bb03836-3dc4-46ac-a04f-328323a7bab8",
+      "name": "HTTP Request5"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Pagamento": {
+      "main": [
+        [
+          {
+            "node": "HTTP Inadimplencias",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Manutencoes": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "HTTP Passageiro",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Despesa",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Manutencoes",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Documentos",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Pagamentos",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP Despesas",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP Manutencao",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Inadimplentes",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Documentos": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Pagamentos": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Code Resumo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Despesa": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Despesas": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Code Resumo": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "HTTP Passageiros",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Inadimplencias": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Passageiro": {
+      "main": [
+        [
+          {
+            "node": "HTTP Pagamento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Passageiros": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "If Vencimento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Pagamento do mes": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Vencimento": {
+      "main": [
+        [
+          {
+            "node": "HTTP Pagamento do mes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Inadimplencias1": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "HTTP Inadimplencias2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "HTTP Inadimplencias1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Inadimplentes": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Manutencao": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "HTTP Request4": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript3": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "dab4bdd0-f372-4d9b-b82d-499078eec9d0",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "650bd7f080911594b75bd4be402ea3e7ecab897aad55a5a979143ac681af6f80"
+  },
+  "id": "eN30ahj70bjb58lR",
+  "tags": []
+}
